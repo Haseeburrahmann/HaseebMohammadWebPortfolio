@@ -1,27 +1,29 @@
-# HaseebPortfolio
+# Haseeb Mohammad Portfolio
+
+A modern, responsive portfolio website showcasing my skills, projects, and professional experience as a Full Stack Developer with expertise in .NET Core, Azure Cloud Services, and modern web technologies.
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.1.0.
 
-## Development server
+## Features
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+- **Single Page Application**: Smooth scrolling between sections with animated transitions
+- **Dark/Light Mode**: Toggle between light and dark themes
+- **Responsive Design**: Mobile-first approach that works on all devices
+- **Interactive UI Components**: 
+  - Animated skill bars
+  - Interactive project cards
+  - Timeline-based experience display
+  - Dynamic contact form
 
-## Code scaffolding
+## Deployment
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+This project is deployed on GitHub Pages at: https://haseeburrahmann.github.io/HaseebMohammadWebPortfolio/
 
-## Build
+### Deployment Steps
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+```bash
+# Build with correct base href
+ng build --configuration production --base-href="https://haseeburrahmann.github.io/HaseebMohammadWebPortfolio/"
 
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+# Deploy to GitHub Pages
+npx angular-cli-ghpages --dir=dist/haseeb-portfolio/browser
