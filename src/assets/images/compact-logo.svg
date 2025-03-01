@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 50">
+  <!-- Definitions -->
+  <defs>
+    <linearGradient id="compactLogoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00838f"/>
+      <stop offset="100%" stop-color="#26a69a"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Main Logo Group -->
+  <g>
+    <!-- Brackets and HM monogram -->
+    <g transform="translate(5, 5)">
+      <!-- Left Bracket -->
+      <path d="M5,5 L0,20 L5,35" fill="none" stroke="#00838f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      
+      <!-- Right Bracket -->
+      <path d="M185,5 L190,20 L185,35" fill="none" stroke="#26a69a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      
+      <!-- H letter -->
+      <path d="M20,10 L20,30 M20,20 L35,20 M35,10 L35,30" stroke="url(#compactLogoGradient)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      
+      <!-- M letter stylized to connect with the H -->
+      <path d="M40,10 L40,30 M40,10 L50,25 L60,10 M60,10 L60,30" stroke="url(#compactLogoGradient)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    </g>
+    
+    <!-- Name -->
+    <g transform="translate(75, 12)">
+      <!-- Haseeb -->
+      <text x="0" y="10" font-family="'Poppins', sans-serif" font-size="14" font-weight="600" fill="#00838f">Haseeb</text>
+      
+      <!-- Mohammad -->
+      <text x="0" y="28" font-family="'Poppins', sans-serif" font-size="14" font-weight="600" fill="#26a69a">Mohammad</text>
+    </g>
+    
+    <!-- Decorative dots -->
+    <circle cx="70" cy="20" r="1.5" fill="#00838f">
+      <animate attributeName="r" values="1.5;2;1.5" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="70" cy="30" r="1.5" fill="#26a69a">
+      <animate attributeName="r" values="1.5;2;1.5" dur="2.5s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+</svg>

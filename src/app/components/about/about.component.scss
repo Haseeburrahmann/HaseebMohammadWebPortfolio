@@ -1,0 +1,113 @@
+/* About Component Styles */
+.about-container {
+    padding: var(--spacing-xl) 0;
+    
+    .about-content {
+      display: flex;
+      gap: var(--spacing-xl);
+      margin-top: var(--spacing-xl);
+      
+      .profile-image {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        
+        .placeholder-image {
+          width: 100%;
+          max-width: 400px;
+          aspect-ratio: 1 / 1;
+          background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+          border-radius: var(--border-radius-lg);
+          box-shadow: var(--shadow-lg);
+        }
+        
+        img {
+          max-width: 100%;
+          border-radius: var(--border-radius-lg);
+          box-shadow: var(--shadow-lg);
+        }
+      }
+      
+      .profile-info {
+        flex: 1.5;
+        
+        h3 {
+          font-size: 2.25rem;
+          color: var(--primary-dark);
+          margin-bottom: var(--spacing-xs);
+        }
+        
+        h4 {
+          font-size: 1.5rem;
+          color: var(--primary-color);
+          margin-bottom: var(--spacing-md);
+        }
+        
+        .bio {
+          margin-bottom: var(--spacing-lg);
+          
+          p {
+            font-size: 1.1rem;
+            margin-bottom: var(--spacing-sm);
+          }
+        }
+        
+        .education {
+          margin-bottom: var(--spacing-lg);
+          
+          .education-item {
+            margin-bottom: var(--spacing-md);
+            
+            h5 {
+              font-size: 1.2rem;
+              margin-bottom: var(--spacing-xs);
+            }
+            
+            .gpa {
+              color: var(--primary-color);
+              font-weight: 500;
+            }
+            
+            .graduation-date {
+              font-style: italic;
+              color: var(--text-secondary);
+            }
+          }
+        }
+        
+        .contact-info {
+          ul {
+            list-style: none;
+            padding: 0;
+            margin-bottom: var(--spacing-md);
+            
+            li {
+              display: flex;
+              align-items: center;
+              margin-bottom: var(--spacing-sm);
+              
+              i {
+                color: var(--primary-color);
+                width: 24px;
+                margin-right: var(--spacing-sm);
+              }
+            }
+          }
+          
+          .cta {
+            display: flex;
+            gap: var(--spacing-md);
+          }
+        }
+      }
+      
+      @media (max-width: 992px) {
+        flex-direction: column;
+        
+        .profile-image {
+          margin-bottom: var(--spacing-lg);
+        }
+      }
+    }
+  }
+  
