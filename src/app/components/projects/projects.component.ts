@@ -1,5 +1,5 @@
-// app/components/projects/projects.component.ts
-import { Component } from '@angular/core';
+// app/components/projects/projects.component.ts - Horizontal scrolling design
+import { Component, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 interface Project {
@@ -7,9 +7,18 @@ interface Project {
   description: string;
   technologies: string[];
   achievements: string[];
-  imageUrl?: string;
   color: string;
   icon: string;
+  category: 'web-app' | 'machine-learning' | 'data-viz' | 'full-stack';
+  status: 'completed' | 'in-progress';
+  githubUrl?: string;
+  liveUrl?: string;
+}
+
+interface ProjectCategory {
+  name: string;
+  icon: string;
+  projects: Project[];
 }
 
 @Component({
@@ -22,83 +31,95 @@ interface Project {
         <div class="section-header">
           <h2 class="fade-in">Featured Projects</h2>
           <div class="section-divider"></div>
+          <p class="section-subtitle fade-in delay-1">
+            Explore my portfolio of innovative solutions across different technologies
+          </p>
         </div>
         
-        <div class="projects-filter fade-in delay-1">
-          <button 
-            [class.active]="activeFilter === 'all'"
-            (click)="setFilter('all')"
-            class="filter-btn"
-          >
-            All Projects
-          </button>
-          <button 
-            *ngFor="let tech of uniqueTechnologies" 
-            [class.active]="activeFilter === tech"
-            (click)="setFilter(tech)"
-            class="filter-btn"
-          >
-            {{tech}}
-          </button>
-        </div>
-        
-        <div class="projects-grid">
-          <div 
-            *ngFor="let project of filteredProjects; let i = index" 
-            class="project-card fade-in" 
-            [class]="'delay-' + (i % 5 + 1)"
-          >
-            <div class="project-header" [style.background]="project.color">
-              <div class="project-icon">
-                <i [class]="project.icon"></i>
-              </div>
-              <h3 class="project-title">{{project.title}}</h3>
-            </div>
-            
-            <div class="project-content">
-              <p class="project-description">{{project.description}}</p>
+        <div class="projects-tabs">
+          <div class="tabs-navigation fade-in delay-1">
+            <button 
+              *ngFor="let category of projectCategories; let i = index" 
+              [class.active]="activeTab === i"
+              (click)="setActiveTab(i)"
+              class="tab-button"
+              type="button"
+            >
+              <i [class]="category.icon" aria-hidden="true"></i>
+              <span>{{category.name}}</span>
+              <div class="project-count">{{category.projects.length}}</div>
+            </button>
+          </div>
+          
+          <div class="tabs-content fade-in delay-2">
+            <div *ngFor="let category of projectCategories; let i = index" 
+                 class="tab-panel"
+                 [class.active]="activeTab === i">
               
-              <div class="project-achievements">
-                <h4>Key Achievements</h4>
-                <ul>
-                  <li *ngFor="let achievement of project.achievements">
-                    {{achievement}}
-                  </li>
-                </ul>
+              <!-- Navigation arrows for mobile -->
+              <div class="scroll-controls">
+                <button class="scroll-btn scroll-left" (click)="scrollProjects('left')" type="button">
+                  <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="scroll-btn scroll-right" (click)="scrollProjects('right')" type="button">
+                  <i class="fas fa-chevron-right"></i>
+                </button>
               </div>
               
-              <div class="project-tech">
-                <h4>Technologies Used</h4>
-                <div class="tech-tags">
-                  <span 
-                    *ngFor="let tech of project.technologies" 
-                    class="tech-tag"
-                    [class.highlight]="activeFilter === tech"
-                  >
-                    {{tech}}
-                  </span>
+              <div class="projects-wrapper">
+                <div class="projects-row" #projectsRow>
+                  <div *ngFor="let project of category.projects; let j = index" 
+                       class="project-card" 
+                       [class]="'delay-' + (j + 1)"
+                       [style.animation-delay]="(j * 0.1) + 's'">
+                    
+                    <div class="project-image" [style.background]="project.color">
+                      <div class="project-icon">
+                        <i [class]="project.icon" aria-hidden="true"></i>
+                      </div>
+                      <div class="project-overlay">
+                        <div class="project-status" [class]="project.status">
+                          {{project.status === 'completed' ? 'Completed' : 'In Progress'}}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div class="project-info">
+                      <h3 class="project-title">{{project.title}}</h3>
+                      <p class="project-description">{{project.description}}</p>
+                      
+                      <div class="project-tech">
+                        <div class="tech-tags">
+                          <span *ngFor="let tech of project.technologies.slice(0, 4)" 
+                                class="tech-tag">{{tech}}</span>
+                          <span *ngIf="project.technologies.length > 4" 
+                                class="tech-tag more">+{{project.technologies.length - 4}}</span>
+                        </div>
+                      </div>
+                      
+                      <div class="project-actions">
+                        <button (click)="viewProject(project)" class="btn-view" type="button">
+                          <i class="fas fa-eye"></i>
+                          Details
+                        </button>
+                        <button [disabled]="!project.githubUrl" class="btn-github" type="button">
+                          <i class="fab fa-github"></i>
+                          Code
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
               
-              <div class="project-actions">
-                <button class="btn-view-details">
-                  <i class="fas fa-info-circle"></i> More Details
-                </button>
-                
-                <button class="btn-live-demo">
-                  <i class="fas fa-external-link-alt"></i> Live Demo
-                </button>
+              <!-- Progress indicators -->
+              <div class="scroll-indicators" *ngIf="category.projects.length > 0">
+                <div *ngFor="let project of category.projects; let k = index"
+                     class="indicator"
+                     [class.active]="k === 0">
+                </div>
               </div>
             </div>
-          </div>
-          
-          <!-- Empty state when no projects match the filter -->
-          <div *ngIf="filteredProjects.length === 0" class="empty-state">
-            <i class="fas fa-search"></i>
-            <p>No projects match the selected filter.</p>
-            <button (click)="setFilter('all')" class="btn-reset-filter">
-              Show All Projects
-            </button>
           </div>
         </div>
       </div>
@@ -106,74 +127,244 @@ interface Project {
   `,
   styleUrls: ['./projects.component.scss']
 })
-export class ProjectsComponent {
-  activeFilter = 'all';
+export class ProjectsComponent implements AfterViewInit {
+  activeTab = 0;
   
-  projects: Project[] = [
+  projectCategories: ProjectCategory[] = [
     {
-      title: 'Enterprise Cloud Migration Project',
-      description: 'Led migration of legacy applications to Azure cloud services using microservices architecture.',
-      technologies: ['Azure', 'Microservices', 'Azure DevOps', 'App Services', 'Container Instances'],
-      achievements: [
-        'Implemented Azure DevOps pipelines achieving 99.9% deployment success rate',
-        'Utilized Azure App Services and Container Instances for scalable application hosting',
-        'Reduced operational costs by 30% through efficient cloud resource management'
-      ],
-      color: 'linear-gradient(135deg, #00838f 0%, #26a69a 100%)',
-      icon: 'fas fa-cloud'
+      name: 'All Projects',
+      icon: 'fas fa-th-large',
+      projects: [
+        {
+          title: 'Store Management System',
+          description: 'Full-stack application for efficient store operations with inventory control, sales tracking, and CRM capabilities.',
+          technologies: ['C#', '.NET 7', 'SQL Server 2022', 'Entity Framework Core', 'Angular 16', 'TypeScript', 'Bootstrap 5'],
+          achievements: [
+            'Developed core features for inventory control and sales tracking',
+            'Led development team using Scrum framework',
+            'Created intuitive UI for efficient store operations'
+          ],
+          color: 'linear-gradient(135deg, #ff5722 0%, #ff9800 100%)',
+          icon: 'fas fa-store',
+          category: 'full-stack',
+          status: 'completed'
+        },
+        {
+          title: 'Movie Recommendation System',
+          description: 'AI-powered recommendation engine using machine learning algorithms and data visualization techniques.',
+          technologies: ['Python', '.NET 8', 'Azure Services', 'Scikit-learn', 'Pandas', 'Matplotlib', 'Seaborn'],
+          achievements: [
+            'Implemented Random Forest and K-means clustering algorithms',
+            'Enhanced prediction accuracy through model tuning',
+            'Achieved 85% prediction accuracy for user preferences'
+          ],
+          color: 'linear-gradient(135deg, #673ab7 0%, #9c27b0 100%)',
+          icon: 'fas fa-film',
+          category: 'machine-learning',
+          status: 'completed'
+        },
+        {
+          title: 'Data Visualization Dashboard',
+          description: 'Advanced data visualization project for large-scale graphs with optimized performance and interactive features.',
+          technologies: ['JavaScript', 'TypeScript', 'D3.js', 'HTML5', 'CSS3', 'Chart.js', 'Node.js'],
+          achievements: [
+            'Designed advanced data visualization techniques',
+            'Reduced time complexity for large datasets',
+            'Built reusable visualization components'
+          ],
+          color: 'linear-gradient(135deg, #2196f3 0%, #21cbf3 100%)',
+          icon: 'fas fa-chart-line',
+          category: 'data-viz',
+          status: 'completed'
+        },
+        {
+          title: 'Enterprise Microservices Platform',
+          description: 'Scalable microservices platform with .NET 8, Azure cloud services, and comprehensive CI/CD pipelines.',
+          technologies: ['.NET 8', 'C# 11', 'Azure App Services', 'Docker', 'Kubernetes', 'Azure DevOps', 'SQL Server'],
+          achievements: [
+            'Architected microservices using SOLID principles',
+            'Implemented CI/CD pipelines with 99.9% success rate',
+            'Achieved 40% improvement in system scalability'
+          ],
+          color: 'linear-gradient(135deg, #00838f 0%, #26a69a 100%)',
+          icon: 'fas fa-cloud',
+          category: 'web-app',
+          status: 'completed'
+        },
+        {
+          title: 'AI Analytics Platform',
+          description: 'Machine learning platform for processing large datasets and generating business insights with predictive modeling.',
+          technologies: ['Python', 'TensorFlow', 'Pandas', 'Azure ML', 'SQL Server', 'Power BI', 'Jupyter'],
+          achievements: [
+            'Developed ML models with 90% accuracy',
+            'Processed datasets with millions of records',
+            'Reduced manual analysis time by 70%'
+          ],
+          color: 'linear-gradient(135deg, #4caf50 0%, #8bc34a 100%)',
+          icon: 'fas fa-brain',
+          category: 'machine-learning',
+          status: 'completed'
+        },
+        {
+          title: 'Interactive Sales Dashboard',
+          description: 'Dynamic dashboard transforming complex sales data into actionable insights with real-time analytics.',
+          technologies: ['React', 'D3.js', 'TypeScript', 'Node.js', 'MongoDB', 'WebSocket', 'Express.js'],
+          achievements: [
+            'Built real-time dashboard with live updates',
+            'Implemented complex interactive charts',
+            'Improved decision-making speed by 50%'
+          ],
+          color: 'linear-gradient(135deg, #ff9800 0%, #ffc107 100%)',
+          icon: 'fas fa-chart-bar',
+          category: 'data-viz',
+          status: 'completed'
+        }
+      ]
     },
     {
-      title: 'Movie Recommendation System',
-      description: 'Developed an AI-powered recommendation engine using machine learning algorithms.',
-      technologies: ['Python', 'Azure Machine Learning', 'Matplotlib', 'Seaborn', 'Random Forest', 'K-means'],
-      achievements: [
-        'Implemented data visualization using Python libraries (Matplotlib, Seaborn)',
-        'Achieved 85% prediction accuracy for user movie preferences',
-        'Utilized Azure Machine Learning services for model deployment'
-      ],
-      color: 'linear-gradient(135deg, #673ab7 0%, #9c27b0 100%)',
-      icon: 'fas fa-film'
+      name: 'Full Stack',
+      icon: 'fas fa-layers',
+      projects: [
+        {
+          title: 'Store Management System',
+          description: 'Full-stack application for efficient store operations with inventory control, sales tracking, and CRM capabilities.',
+          technologies: ['C#', '.NET 7', 'SQL Server 2022', 'Entity Framework Core', 'Angular 16', 'TypeScript'],
+          achievements: [
+            'Developed core features for inventory control and sales tracking',
+            'Led development team using Scrum framework',
+            'Created intuitive UI for efficient store operations'
+          ],
+          color: 'linear-gradient(135deg, #ff5722 0%, #ff9800 100%)',
+          icon: 'fas fa-store',
+          category: 'full-stack',
+          status: 'completed'
+        }
+      ]
     },
     {
-      title: 'Store Management System',
-      description: 'Architected and developed a full-stack application for inventory management and sales analytics.',
-      technologies: ['.NET Core', 'Angular', 'Azure AD', 'SQL Server', 'Entity Framework Core'],
-      achievements: [
-        'Implemented real-time inventory tracking and sales analytics',
-        'Led a team of 4 developers using Agile/Scrum methodology',
-        'Integrated Azure AD for secure authentication and authorization'
-      ],
-      color: 'linear-gradient(135deg, #ff5722 0%, #ff9800 100%)',
-      icon: 'fas fa-store'
+      name: 'Machine Learning',
+      icon: 'fas fa-brain',
+      projects: [
+        {
+          title: 'Movie Recommendation System',
+          description: 'AI-powered recommendation engine using machine learning algorithms and data visualization techniques.',
+          technologies: ['Python', '.NET 8', 'Azure Services', 'Scikit-learn', 'Pandas', 'Matplotlib'],
+          achievements: [
+            'Implemented Random Forest and K-means clustering algorithms',
+            'Enhanced prediction accuracy through model tuning',
+            'Achieved 85% prediction accuracy for user preferences'
+          ],
+          color: 'linear-gradient(135deg, #673ab7 0%, #9c27b0 100%)',
+          icon: 'fas fa-film',
+          category: 'machine-learning',
+          status: 'completed'
+        },
+        {
+          title: 'AI Analytics Platform',
+          description: 'Machine learning platform for processing large datasets and generating business insights.',
+          technologies: ['Python', 'TensorFlow', 'Pandas', 'Azure ML', 'SQL Server', 'Power BI'],
+          achievements: [
+            'Developed ML models with 90% accuracy',
+            'Processed datasets with millions of records',
+            'Reduced manual analysis time by 70%'
+          ],
+          color: 'linear-gradient(135deg, #4caf50 0%, #8bc34a 100%)',
+          icon: 'fas fa-brain',
+          category: 'machine-learning',
+          status: 'completed'
+        }
+      ]
+    },
+    {
+      name: 'Data Visualization',
+      icon: 'fas fa-chart-bar',
+      projects: [
+        {
+          title: 'Data Visualization Dashboard',
+          description: 'Advanced data visualization project for large-scale graphs with optimized performance.',
+          technologies: ['JavaScript', 'TypeScript', 'D3.js', 'HTML5', 'CSS3', 'Chart.js'],
+          achievements: [
+            'Designed advanced data visualization techniques',
+            'Reduced time complexity for large datasets',
+            'Built reusable visualization components'
+          ],
+          color: 'linear-gradient(135deg, #2196f3 0%, #21cbf3 100%)',
+          icon: 'fas fa-chart-line',
+          category: 'data-viz',
+          status: 'completed'
+        },
+        {
+          title: 'Interactive Sales Dashboard',
+          description: 'Dynamic dashboard transforming complex sales data into actionable insights.',
+          technologies: ['React', 'D3.js', 'TypeScript', 'Node.js', 'MongoDB', 'WebSocket'],
+          achievements: [
+            'Built real-time dashboard with live updates',
+            'Implemented complex interactive charts',
+            'Improved decision-making speed by 50%'
+          ],
+          color: 'linear-gradient(135deg, #ff9800 0%, #ffc107 100%)',
+          icon: 'fas fa-chart-bar',
+          category: 'data-viz',
+          status: 'completed'
+        }
+      ]
     }
   ];
   
-  get uniqueTechnologies(): string[] {
-    const allTechnologies = this.projects.flatMap(project => project.technologies);
-    // Get unique technologies and limit to most common ones to avoid too many filter buttons
-    const techCount = allTechnologies.reduce((acc, tech) => {
-      acc[tech] = (acc[tech] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-    
-    // Sort by frequency and take top 6
-    return Object.entries(techCount)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 6)
-      .map(entry => entry[0]);
+  ngAfterViewInit(): void {
+    // Initialize scroll indicators or any other setup
   }
   
-  get filteredProjects(): Project[] {
-    if (this.activeFilter === 'all') {
-      return this.projects;
+  setActiveTab(index: number): void {
+    this.activeTab = index;
+    
+    // Add stagger animation to project cards
+    setTimeout(() => {
+      const cards = document.querySelectorAll('.tab-panel.active .project-card');
+      cards.forEach((card, i) => {
+        const htmlCard = card as HTMLElement;
+        htmlCard.style.animationDelay = `${i * 0.1}s`;
+        card.classList.remove('animate-in');
+        void htmlCard.offsetWidth; // Force reflow
+        card.classList.add('animate-in');
+      });
+    }, 50);
+  }
+  
+  scrollProjects(direction: 'left' | 'right'): void {
+    const projectsRow = document.querySelector('.tab-panel.active .projects-row') as HTMLElement;
+    if (projectsRow) {
+      const scrollAmount = 350; // Width of one project card
+      const currentScroll = projectsRow.scrollLeft;
+      const targetScroll = direction === 'left' 
+        ? currentScroll - scrollAmount 
+        : currentScroll + scrollAmount;
+      
+      projectsRow.scrollTo({
+        left: targetScroll,
+        behavior: 'smooth'
+      });
     }
-    
-    return this.projects.filter(project => 
-      project.technologies.includes(this.activeFilter)
-    );
   }
   
-  setFilter(filter: string): void {
-    this.activeFilter = filter;
+  viewProject(project: Project): void {
+    const modal = `
+🚀 ${project.title}
+
+📝 Description:
+${project.description}
+
+✨ Key Achievements:
+${project.achievements.map(achievement => `• ${achievement}`).join('\n')}
+
+🛠️ Technologies:
+${project.technologies.join(', ')}
+
+📊 Status: ${project.status === 'completed' ? 'Completed ✅' : 'In Progress 🔄'}
+
+🔗 Links coming soon!
+    `;
+    
+    alert(modal);
   }
 }

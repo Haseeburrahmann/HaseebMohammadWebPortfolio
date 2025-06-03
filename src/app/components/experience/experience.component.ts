@@ -8,6 +8,7 @@ interface WorkExperience {
   location: string;
   period: string;
   responsibilities: string[];
+  technologies: string[];
 }
 
 @Component({
@@ -18,7 +19,7 @@ interface WorkExperience {
     <section class="experience-container">
       <div class="container">
         <div class="section-header">
-          <h2 class="fade-in">Work Experience</h2>
+          <h2 class="fade-in">Professional Experience</h2>
           <div class="section-divider"></div>
         </div>
         
@@ -49,6 +50,13 @@ interface WorkExperience {
                     {{responsibility}}
                   </li>
                 </ul>
+                
+                <div class="technologies-used" *ngIf="job.technologies && job.technologies.length > 0">
+                  <h5>Technologies Used:</h5>
+                  <div class="tech-tags">
+                    <span *ngFor="let tech of job.technologies" class="tech-tag">{{tech}}</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -64,38 +72,54 @@ export class ExperienceComponent {
       title: 'Software Developer',
       company: 'JET Health Solutions',
       location: 'Fort Lauderdale, Florida',
-      period: 'Feb 2024 - Current',
+      period: 'Feb 2024 - Present',
       responsibilities: [
-        'Architected and deployed microservices using Azure App Services and Container Instances, improving system scalability by 40%',
-        'Implemented Azure DevOps pipelines for CI/CD, reducing deployment time by 35% and minimizing deployment errors',
-        'Developed full-stack web applications using .NET Core, Angular, and Azure cloud services',
-        'Designed and implemented RESTful APIs and SOAP services using .NET Core Web API',
-        'Optimized database performance through SQL Server query tuning and implementation of efficient indexing strategies'
-      ]
+        'Architected and developed microservices-based applications using .NET 8, C#, and Azure, implementing dependency injection and SOLID principles',
+        'Developed and tested SQL code within a C# framework, creating complex stored procedures, user-defined functions, and triggers to optimize performance',
+        'Designed and developed responsive web applications using C#, .NET 8, HTML5, CSS3, and Angular 17, significantly enhancing user experience',
+        'Implemented SOAP and RESTful services with Web API, utilizing Azure API Management for seamless front-end integration',
+        'Migrated complex SQL Server stored procedures to C# using Entity Framework Core and LINQ, improving data manipulation efficiency',
+        'Configured CI/CD pipelines using Azure DevOps and Jenkins for automated builds and deployments, reducing deployment time',
+        'Developed Single Page Applications (SPAs) using Angular 17 with dependency injection and reactive forms',
+        'Leveraged Azure Cloud Services including App Services, Azure Functions, and Azure SQL for scalable cloud-native development',
+        'Implemented containerization with Docker and Kubernetes for microservices deployment and orchestration',
+        'Performed comprehensive unit testing using NUnit and integration testing with Selenium'
+      ],
+      technologies: ['.NET 8', 'ASP.NET Core', 'C# 11', 'SQL Server 2022', 'Entity Framework Core 7.0', 'LINQ', 'Angular 17', 'TypeScript 4.9', 'HTML5', 'CSS3', 'Bootstrap 5', 'JavaScript', 'Azure DevOps', 'Azure Cloud Services', 'Docker', 'Kubernetes', 'REST APIs', 'Microservices']
     },
     {
-      title: 'Software Engineer Intern',
+      title: 'Software Developer Intern',
       company: 'JET Health Solutions',
       location: 'Fort Lauderdale, Florida',
       period: 'Aug 2023 - Dec 2023',
       responsibilities: [
-        'Enhanced SQL performance by implementing advanced indexing strategies, resulting in 25% faster query response times',
-        'Developed and integrated new features using Angular and .NET Core, following clean architecture principles',
-        'Implemented automated testing using xUnit and Selenium, achieving 90% code coverage',
-        'Gained hands-on experience with Azure cloud services, including Azure DevOps and Azure SQL Database'
-      ]
+        'Enhanced SQL performance by optimizing existing queries and implementing indexing strategies, resulting in 40% improved application response times',
+        'Collaborated on a team project to design and develop a microservices-based web application using Angular 16 and .NET 7',
+        'Implemented new features and resolved bugs in existing applications, utilizing Agile methodologies with Scrum',
+        'Completed advanced training in Azure cloud technologies and DevOps practices, gaining hands-on experience with Azure services',
+        'Developed RESTful APIs using ASP.NET Core Web API and implemented proper error handling and logging mechanisms',
+        'Utilized Entity Framework Core with repository pattern for efficient data access and management',
+        'Engaged in code reviews and contributed to the development of internal documentation',
+        'Implemented responsive design using Bootstrap 5 and CSS Grid for optimal viewing across different devices'
+      ],
+      technologies: ['.NET 7', 'ASP.NET Core', 'C# 10', 'SQL Server 2019', 'Azure Cloud Services', 'Entity Framework Core', 'Angular 16', 'TypeScript', 'HTML5', 'CSS3', 'Bootstrap 5', 'JavaScript', 'Microservices', 'REST APIs', 'Azure DevOps', 'Git']
     },
     {
-      title: 'Software Engineer Intern',
+      title: 'Software Developer Intern',
       company: 'JET Health Solutions',
       location: 'Fort Lauderdale, Florida',
       period: 'May 2023 - Jul 2023',
       responsibilities: [
-        'Developed and optimized SQL queries and stored procedures within C# applications',
-        'Implemented data extraction utilities using Entity Framework Core and LINQ',
-        'Completed comprehensive training in .NET Core, C#, Angular, and Azure cloud services',
-        'Participated in Agile ceremonies and team collaboration activities'
-      ]
+        'Developed and tested SQL code within a C# framework, creating stored procedures, functions, and views for optimal performance',
+        'Led the creation of complex stored procedures and data extraction utilities using T-SQL, enhancing system efficiency by 25%',
+        'Implemented dependency injection in .NET Core applications to ensure loose coupling and better testability',
+        'Achieved advanced proficiency through organizational training in Object-Oriented Programming, .NET 6, and C# best practices',
+        'Participated in team meetings regularly to align on project goals and progress within the Agile framework',
+        'Completed essential training on C# 10, .NET 6, Angular 15, Entity Framework Core, LINQ, and Visual Studio 2022',
+        'Assisted in implementing Docker containers for development environment standardization',
+        'Gained initial exposure to Azure cloud services through mentored learning sessions'
+      ],
+      technologies: ['C# 10', '.NET 6', 'ASP.NET Core', 'SQL Server 2019', 'T-SQL', 'Visual Studio 2022', 'Angular 15', 'TypeScript', 'LINQ', 'Entity Framework Core', 'Docker', 'Azure fundamentals']
     },
     {
       title: 'Student Assistant - Grader/Tutor',
@@ -103,10 +127,11 @@ export class ExperienceComponent {
       location: 'Florida',
       period: 'Dec 2022 - Dec 2023',
       responsibilities: [
-        'Provided one-on-one tutoring in Java programming concepts and software development principles',
-        'Evaluated student assignments and provided detailed feedback to enhance learning outcomes',
-        'Collaborated with faculty to align tutoring materials with course objectives'
-      ]
+        'Conducted tutoring sessions to clarify Java programming concepts and improve student understanding',
+        'Evaluated and graded assignments, offering constructive feedback to enhance coding skills',
+        'Collaborated with course instructors to align tutoring sessions with curriculum standards'
+      ],
+      technologies: ['Java', 'Object-Oriented Programming', 'Academic Tutoring']
     }
   ];
 }
