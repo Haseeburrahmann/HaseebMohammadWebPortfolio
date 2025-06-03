@@ -1,13 +1,13 @@
 {
   "name": "haseeb-portfolio",
   "version": "0.0.0",
-  "scripts": {
-    "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "predeploy": "ng build --base-href=https://haseeburrahmann.github.io/HaseebMohammadWebPortfolio/",
-    "deploy": "gh-pages -d dist/haseeb-portfolio"
-  },
+ "scripts": {
+  "ng": "ng",
+  "start": "ng serve",
+  "build": "ng build",
+  "predeploy": "ng build --base-href=https://haseeburrahmann.github.io/HaseebMohammadWebPortfolio/",
+  "deploy": "gh-pages -d dist/haseeb-portfolio"
+},
   "private": true,
   "dependencies": {
     "@angular/animations": "^17.1.0",
