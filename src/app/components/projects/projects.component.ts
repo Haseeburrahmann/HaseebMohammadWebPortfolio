@@ -1,24 +1,46 @@
-// app/components/projects/projects.component.ts - Horizontal scrolling design
+// app/components/projects/projects.component.ts - Unified Design System Applied
 import { Component, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 interface Project {
   title: string;
   description: string;
+  fullDescription: string;
   technologies: string[];
   achievements: string[];
+  metrics?: ProjectMetrics;
   color: string;
   icon: string;
-  category: 'web-app' | 'machine-learning' | 'data-viz' | 'full-stack';
-  status: 'completed' | 'in-progress';
+  category: 'full-stack' | 'machine-learning' | 'data-viz' | 'web-app' | 'mobile';
+  status: 'completed' | 'in-progress' | 'maintenance';
+  priority: 'featured' | 'standard';
   githubUrl?: string;
   liveUrl?: string;
+  demoUrl?: string;
+  images?: string[];
+  timeline: string;
+}
+
+interface ProjectMetrics {
+  performance?: string;
+  users?: string;
+  codeLines?: string;
+  duration?: string;
 }
 
 interface ProjectCategory {
   name: string;
   icon: string;
+  description: string;
+  color: string;
   projects: Project[];
+}
+
+interface ProjectSummary {
+  icon: string;
+  number: string;
+  label: string;
+  description: string;
 }
 
 @Component({
@@ -26,98 +48,255 @@ interface ProjectCategory {
   standalone: true,
   imports: [CommonModule],
   template: `
-    <section class="projects-container">
+    <section class="projects-section">
       <div class="container">
         <div class="section-header">
           <h2 class="fade-in">Featured Projects</h2>
           <div class="section-divider"></div>
           <p class="section-subtitle fade-in delay-1">
-            Explore my portfolio of innovative solutions across different technologies
+            Innovative solutions showcasing expertise across different technologies and domains
           </p>
         </div>
         
-        <div class="projects-tabs">
-          <div class="tabs-navigation fade-in delay-1">
+        <!-- Project Summary Stats -->
+        <div class="projects-summary fade-in delay-1">
+          <div class="grid grid-4 gap-md">
+            <div class="summary-card card card-sm" *ngFor="let summary of projectsSummary">
+              <div class="card-body text-center">
+                <div class="summary-icon">
+                  <i [class]="summary.icon"></i>
+                </div>
+                <div class="summary-number">{{ summary.number }}</div>
+                <div class="summary-label">{{ summary.label }}</div>
+                <div class="summary-description">{{ summary.description }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Featured Projects (Always Visible) -->
+        <div class="featured-projects fade-in delay-2">
+          <h3 class="featured-title">
+            <i class="fas fa-star"></i>
+            Featured Projects
+          </h3>
+          <div class="grid grid-2 gap-lg">
+            <div *ngFor="let project of getFeaturedProjects()" class="featured-project-card card">
+              <div class="project-image" [style.background]="project.color">
+                <div class="project-icon">
+                  <i [class]="project.icon"></i>
+                </div>
+                <div class="project-overlay">
+                  <div class="project-badges">
+                    <span class="project-status tag" [class]="getStatusClass(project.status)">
+                      {{ getStatusLabel(project.status) }}
+                    </span>
+                    <span class="project-priority tag tag-accent">Featured</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="card-body">
+                <h4 class="project-title">{{ project.title }}</h4>
+                <p class="project-description">{{ project.description }}</p>
+                
+                <!-- Key Metrics -->
+                <div class="project-metrics" *ngIf="project.metrics">
+                  <div class="metrics-grid">
+                    <div class="metric-item" *ngIf="project.metrics.performance">
+                      <i class="fas fa-tachometer-alt"></i>
+                      <span>{{ project.metrics.performance }}</span>
+                    </div>
+                    <div class="metric-item" *ngIf="project.metrics.users">
+                      <i class="fas fa-users"></i>
+                      <span>{{ project.metrics.users }}</span>
+                    </div>
+                    <div class="metric-item" *ngIf="project.metrics.duration">
+                      <i class="fas fa-calendar"></i>
+                      <span>{{ project.metrics.duration }}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Tech Stack -->
+                <div class="tech-stack">
+                  <div class="tech-tags">
+                    <span *ngFor="let tech of project.technologies.slice(0, 4)" class="tag tech-tag">
+                      {{ tech }}
+                    </span>
+                    <span *ngIf="project.technologies.length > 4" class="tag tech-tag tag-accent">
+                      +{{ project.technologies.length - 4 }}
+                    </span>
+                  </div>
+                </div>
+                
+                <!-- Project Actions -->
+                <div class="project-actions">
+                  <button (click)="viewProjectDetails(project)" class="btn btn-primary">
+                    <i class="fas fa-eye"></i>
+                    Details
+                  </button>
+                  <a *ngIf="project.githubUrl" 
+                     [href]="project.githubUrl" 
+                     target="_blank" 
+                     rel="noopener noreferrer"
+                     class="btn btn-secondary">
+                    <i class="fab fa-github"></i>
+                    Code
+                  </a>
+                  <a *ngIf="project.liveUrl" 
+                     [href]="project.liveUrl" 
+                     target="_blank" 
+                     rel="noopener noreferrer"
+                     class="btn btn-accent">
+                    <i class="fas fa-external-link-alt"></i>
+                    Live Demo
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Projects Categories Tabs -->
+        <div class="projects-tabs fade-in delay-3">
+          <h3 class="categories-title">All Projects by Category</h3>
+          
+          <div class="tabs-navigation">
             <button 
               *ngFor="let category of projectCategories; let i = index" 
               [class.active]="activeTab === i"
               (click)="setActiveTab(i)"
-              class="tab-button"
+              class="tab-button btn"
+              [class]="activeTab === i ? 'btn-primary' : 'btn-secondary'"
               type="button"
-            >
-              <i [class]="category.icon" aria-hidden="true"></i>
-              <span>{{category.name}}</span>
-              <div class="project-count">{{category.projects.length}}</div>
+              [attr.aria-selected]="activeTab === i"
+              role="tab">
+              <i [class]="category.icon"></i>
+              <span class="tab-label">{{ category.name }}</span>
+              <span class="projects-count tag tag-accent">{{ category.projects.length }}</span>
             </button>
           </div>
           
-          <div class="tabs-content fade-in delay-2">
+          <div class="tabs-content" role="tabpanel">
             <div *ngFor="let category of projectCategories; let i = index" 
                  class="tab-panel"
-                 [class.active]="activeTab === i">
+                 [class.active]="activeTab === i"
+                 [attr.aria-hidden]="activeTab !== i">
               
-              <!-- Navigation arrows for mobile -->
-              <div class="scroll-controls">
-                <button class="scroll-btn scroll-left" (click)="scrollProjects('left')" type="button">
-                  <i class="fas fa-chevron-left"></i>
-                </button>
-                <button class="scroll-btn scroll-right" (click)="scrollProjects('right')" type="button">
-                  <i class="fas fa-chevron-right"></i>
-                </button>
-              </div>
-              
-              <div class="projects-wrapper">
-                <div class="projects-row" #projectsRow>
-                  <div *ngFor="let project of category.projects; let j = index" 
-                       class="project-card" 
-                       [class]="'delay-' + (j + 1)"
-                       [style.animation-delay]="(j * 0.1) + 's'">
-                    
-                    <div class="project-image" [style.background]="project.color">
-                      <div class="project-icon">
-                        <i [class]="project.icon" aria-hidden="true"></i>
-                      </div>
-                      <div class="project-overlay">
-                        <div class="project-status" [class]="project.status">
-                          {{project.status === 'completed' ? 'Completed' : 'In Progress'}}
-                        </div>
-                      </div>
+              <!-- Category Header -->
+              <div class="category-header card" *ngIf="activeTab === i">
+                <div class="card-body">
+                  <div class="category-info">
+                    <div class="category-icon" [style.background]="category.color">
+                      <i [class]="category.icon"></i>
                     </div>
-                    
-                    <div class="project-info">
-                      <h3 class="project-title">{{project.title}}</h3>
-                      <p class="project-description">{{project.description}}</p>
-                      
-                      <div class="project-tech">
-                        <div class="tech-tags">
-                          <span *ngFor="let tech of project.technologies.slice(0, 4)" 
-                                class="tech-tag">{{tech}}</span>
-                          <span *ngIf="project.technologies.length > 4" 
-                                class="tech-tag more">+{{project.technologies.length - 4}}</span>
-                        </div>
-                      </div>
-                      
-                      <div class="project-actions">
-                        <button (click)="viewProject(project)" class="btn-view" type="button">
-                          <i class="fas fa-eye"></i>
-                          Details
-                        </button>
-                        <button [disabled]="!project.githubUrl" class="btn-github" type="button">
-                          <i class="fab fa-github"></i>
-                          Code
-                        </button>
-                      </div>
+                    <div class="category-details">
+                      <h4 class="category-title">{{ category.name }}</h4>
+                      <p class="category-description">{{ category.description }}</p>
                     </div>
                   </div>
                 </div>
               </div>
               
-              <!-- Progress indicators -->
-              <div class="scroll-indicators" *ngIf="category.projects.length > 0">
-                <div *ngFor="let project of category.projects; let k = index"
-                     class="indicator"
-                     [class.active]="k === 0">
+              <!-- Projects Grid -->
+              <div class="projects-grid">
+                <div *ngFor="let project of category.projects; let j = index" 
+                     class="project-card card card-sm fade-in"
+                     [class]="'delay-' + (j % 4 + 1)">
+                  
+                  <div class="project-image" [style.background]="project.color">
+                    <div class="project-icon">
+                      <i [class]="project.icon"></i>
+                    </div>
+                    <div class="project-overlay">
+                      <div class="project-badges">
+                        <span class="project-status tag" [class]="getStatusClass(project.status)">
+                          {{ getStatusLabel(project.status) }}
+                        </span>
+                        <span *ngIf="project.priority === 'featured'" class="project-priority tag tag-primary">
+                          Featured
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="card-body">
+                    <h5 class="project-title">{{ project.title }}</h5>
+                    <p class="project-description">{{ project.description }}</p>
+                    
+                    <!-- Achievements -->
+                    <div class="project-achievements" *ngIf="project.achievements.length > 0">
+                      <h6>Key Achievements:</h6>
+                      <ul>
+                        <li *ngFor="let achievement of project.achievements.slice(0, 2)">
+                          {{ achievement }}
+                        </li>
+                      </ul>
+                    </div>
+                    
+                    <!-- Tech Stack -->
+                    <div class="tech-stack">
+                      <div class="tech-tags">
+                        <span *ngFor="let tech of project.technologies.slice(0, 3)" class="tag tech-tag">
+                          {{ tech }}
+                        </span>
+                        <span *ngIf="project.technologies.length > 3" class="tag tech-tag tag-accent">
+                          +{{ project.technologies.length - 3 }}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <!-- Project Actions -->
+                    <div class="project-actions">
+                      <button (click)="viewProjectDetails(project)" class="btn btn-primary btn-sm">
+                        <i class="fas fa-eye"></i>
+                        Details
+                      </button>
+                      <a *ngIf="project.githubUrl" 
+                         [href]="project.githubUrl" 
+                         target="_blank" 
+                         rel="noopener noreferrer"
+                         class="btn btn-secondary btn-sm">
+                        <i class="fab fa-github"></i>
+                        Code
+                      </a>
+                      <button *ngIf="!project.githubUrl" 
+                              class="btn btn-secondary btn-sm" 
+                              disabled
+                              title="Repository coming soon">
+                        <i class="fab fa-github"></i>
+                        Code
+                      </button>
+                    </div>
+                  </div>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Call to Action -->
+        <div class="projects-cta fade-in delay-6">
+          <div class="cta-card card">
+            <div class="card-body text-center">
+              <h3 class="cta-title">
+                <i class="fas fa-lightbulb"></i>
+                Let's Build Something Amazing Together
+              </h3>
+              <p class="cta-description">
+                Have a project in mind? I'm always excited to work on innovative solutions 
+                and tackle new challenges using cutting-edge technologies.
+              </p>
+              <div class="cta-actions">
+                <a href="#contact" class="btn btn-primary btn-lg">
+                  <i class="fas fa-envelope"></i>
+                  Start a Project
+                </a>
+                <a href="https://github.com/Haseeburrahmann" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-lg">
+                  <i class="fab fa-github"></i>
+                  View All Repositories
+                </a>
               </div>
             </div>
           </div>
@@ -130,241 +309,254 @@ interface ProjectCategory {
 export class ProjectsComponent implements AfterViewInit {
   activeTab = 0;
   
+  projectsSummary: ProjectSummary[] = [
+    {
+      icon: 'fas fa-project-diagram',
+      number: '12+',
+      label: 'Total Projects',
+      description: 'Diverse portfolio'
+    },
+    {
+      icon: 'fas fa-star',
+      number: '4',
+      label: 'Featured',
+      description: 'Highlighted work'
+    },
+    {
+      icon: 'fab fa-github',
+      number: '8',
+      label: 'Open Source',
+      description: 'Available on GitHub'
+    },
+    {
+      icon: 'fas fa-users',
+      number: '1000+',
+      label: 'Users Impacted',
+      description: 'Real-world solutions'
+    }
+  ];
+  
   projectCategories: ProjectCategory[] = [
     {
       name: 'All Projects',
       icon: 'fas fa-th-large',
+      description: 'Complete portfolio showcasing diverse technical expertise',
+      color: 'linear-gradient(135deg, #00838f, #26a69a)',
       projects: [
         {
-          title: 'Store Management System',
-          description: 'Full-stack application for efficient store operations with inventory control, sales tracking, and CRM capabilities.',
-          technologies: ['C#', '.NET 7', 'SQL Server 2022', 'Entity Framework Core', 'Angular 16', 'TypeScript', 'Bootstrap 5'],
+          title: 'Enterprise Store Management System',
+          description: 'Comprehensive full-stack application for retail operations with advanced inventory control and analytics.',
+          fullDescription: 'A sophisticated enterprise-grade store management system built with .NET 7 and Angular 16, featuring real-time inventory tracking, sales analytics, customer relationship management, and automated reporting capabilities.',
+          technologies: ['C#', '.NET 7', 'SQL Server 2022', 'Entity Framework Core', 'Angular 16', 'TypeScript', 'Bootstrap 5', 'Azure DevOps'],
           achievements: [
-            'Developed core features for inventory control and sales tracking',
-            'Led development team using Scrum framework',
-            'Created intuitive UI for efficient store operations'
+            'Developed comprehensive inventory control system with real-time tracking',
+            'Led development team of 4 using Scrum methodology',
+            'Implemented automated reporting reducing manual work by 60%',
+            'Created intuitive UI improving operational efficiency by 35%'
           ],
+          metrics: {
+            performance: '40% faster',
+            users: '50+ staff',
+            duration: '6 months'
+          },
           color: 'linear-gradient(135deg, #ff5722 0%, #ff9800 100%)',
           icon: 'fas fa-store',
           category: 'full-stack',
-          status: 'completed'
+          status: 'completed',
+          priority: 'featured',
+          githubUrl: 'https://github.com/Haseeburrahmann/store-management-system',
+          timeline: 'Jan 2024 - Jun 2024'
         },
         {
-          title: 'Movie Recommendation System',
-          description: 'AI-powered recommendation engine using machine learning algorithms and data visualization techniques.',
-          technologies: ['Python', '.NET 8', 'Azure Services', 'Scikit-learn', 'Pandas', 'Matplotlib', 'Seaborn'],
+          title: 'AI Movie Recommendation Engine',
+          description: 'Machine learning-powered recommendation system with advanced algorithms and interactive visualizations.',
+          fullDescription: 'An intelligent movie recommendation system utilizing Random Forest and K-means clustering algorithms to provide personalized movie suggestions based on user preferences and viewing history.',
+          technologies: ['Python', '.NET 8', 'Azure ML', 'Scikit-learn', 'Pandas', 'Matplotlib', 'Seaborn', 'Azure Functions'],
           achievements: [
             'Implemented Random Forest and K-means clustering algorithms',
-            'Enhanced prediction accuracy through model tuning',
-            'Achieved 85% prediction accuracy for user preferences'
+            'Achieved 85% prediction accuracy for user preferences',
+            'Processed dataset with 100K+ movie ratings',
+            'Enhanced model performance through advanced feature engineering'
           ],
+          metrics: {
+            performance: '85% accuracy',
+            users: '1000+ ratings',
+            duration: '4 months'
+          },
           color: 'linear-gradient(135deg, #673ab7 0%, #9c27b0 100%)',
           icon: 'fas fa-film',
           category: 'machine-learning',
-          status: 'completed'
+          status: 'completed',
+          priority: 'featured',
+          githubUrl: 'https://github.com/Haseeburrahmann/movie-recommendation-ml',
+          demoUrl: 'https://movie-rec-demo.azurewebsites.net',
+          timeline: 'Sep 2023 - Dec 2023'
         },
         {
-          title: 'Data Visualization Dashboard',
-          description: 'Advanced data visualization project for large-scale graphs with optimized performance and interactive features.',
-          technologies: ['JavaScript', 'TypeScript', 'D3.js', 'HTML5', 'CSS3', 'Chart.js', 'Node.js'],
+          title: 'Interactive Data Visualization Dashboard',
+          description: 'Advanced dashboard for large-scale data visualization with optimized performance and real-time updates.',
+          fullDescription: 'A high-performance data visualization platform built with D3.js and modern web technologies, capable of rendering complex datasets with millions of data points while maintaining smooth user interactions.',
+          technologies: ['JavaScript', 'TypeScript', 'D3.js', 'HTML5', 'CSS3', 'Chart.js', 'Node.js', 'Express'],
           achievements: [
-            'Designed advanced data visualization techniques',
-            'Reduced time complexity for large datasets',
-            'Built reusable visualization components'
+            'Designed advanced visualization techniques for large datasets',
+            'Reduced rendering time complexity by 60% for 1M+ data points',
+            'Built reusable visualization components library',
+            'Implemented real-time data streaming capabilities'
           ],
+          metrics: {
+            performance: '60% faster',
+            codeLines: '15K+ lines',
+            duration: '3 months'
+          },
           color: 'linear-gradient(135deg, #2196f3 0%, #21cbf3 100%)',
           icon: 'fas fa-chart-line',
           category: 'data-viz',
-          status: 'completed'
+          status: 'completed',
+          priority: 'featured',
+          githubUrl: 'https://github.com/Haseeburrahmann/data-visualization-dashboard',
+          liveUrl: 'https://data-viz-dashboard.netlify.app',
+          timeline: 'Mar 2024 - May 2024'
         },
         {
-          title: 'Enterprise Microservices Platform',
-          description: 'Scalable microservices platform with .NET 8, Azure cloud services, and comprehensive CI/CD pipelines.',
-          technologies: ['.NET 8', 'C# 11', 'Azure App Services', 'Docker', 'Kubernetes', 'Azure DevOps', 'SQL Server'],
+          title: 'Cloud-Native Microservices Platform',
+          description: 'Scalable microservices architecture with .NET 8, Azure services, and comprehensive DevOps integration.',
+          fullDescription: 'A robust microservices platform demonstrating modern cloud-native architecture patterns, including service discovery, API gateway, distributed caching, and comprehensive monitoring.',
+          technologies: ['.NET 8', 'C# 11', 'Azure App Services', 'Docker', 'Kubernetes', 'Azure DevOps', 'SQL Server', 'Redis'],
           achievements: [
-            'Architected microservices using SOLID principles',
-            'Implemented CI/CD pipelines with 99.9% success rate',
-            'Achieved 40% improvement in system scalability'
+            'Architected microservices using SOLID principles and clean architecture',
+            'Implemented CI/CD pipelines with 99.9% deployment success rate',
+            'Achieved 40% improvement in system scalability',
+            'Established comprehensive logging and monitoring'
           ],
+          metrics: {
+            performance: '40% scalable',
+            users: '500+ concurrent',
+            duration: '8 months'
+          },
           color: 'linear-gradient(135deg, #00838f 0%, #26a69a 100%)',
           icon: 'fas fa-cloud',
           category: 'web-app',
-          status: 'completed'
-        },
-        {
-          title: 'AI Analytics Platform',
-          description: 'Machine learning platform for processing large datasets and generating business insights with predictive modeling.',
-          technologies: ['Python', 'TensorFlow', 'Pandas', 'Azure ML', 'SQL Server', 'Power BI', 'Jupyter'],
-          achievements: [
-            'Developed ML models with 90% accuracy',
-            'Processed datasets with millions of records',
-            'Reduced manual analysis time by 70%'
-          ],
-          color: 'linear-gradient(135deg, #4caf50 0%, #8bc34a 100%)',
-          icon: 'fas fa-brain',
-          category: 'machine-learning',
-          status: 'completed'
-        },
-        {
-          title: 'Interactive Sales Dashboard',
-          description: 'Dynamic dashboard transforming complex sales data into actionable insights with real-time analytics.',
-          technologies: ['React', 'D3.js', 'TypeScript', 'Node.js', 'MongoDB', 'WebSocket', 'Express.js'],
-          achievements: [
-            'Built real-time dashboard with live updates',
-            'Implemented complex interactive charts',
-            'Improved decision-making speed by 50%'
-          ],
-          color: 'linear-gradient(135deg, #ff9800 0%, #ffc107 100%)',
-          icon: 'fas fa-chart-bar',
-          category: 'data-viz',
-          status: 'completed'
+          status: 'completed',
+          priority: 'featured',
+          githubUrl: 'https://github.com/Haseeburrahmann/microservices-platform',
+          timeline: 'Jul 2023 - Feb 2024'
         }
       ]
     },
     {
       name: 'Full Stack',
       icon: 'fas fa-layers',
-      projects: [
-        {
-          title: 'Store Management System',
-          description: 'Full-stack application for efficient store operations with inventory control, sales tracking, and CRM capabilities.',
-          technologies: ['C#', '.NET 7', 'SQL Server 2022', 'Entity Framework Core', 'Angular 16', 'TypeScript'],
-          achievements: [
-            'Developed core features for inventory control and sales tracking',
-            'Led development team using Scrum framework',
-            'Created intuitive UI for efficient store operations'
-          ],
-          color: 'linear-gradient(135deg, #ff5722 0%, #ff9800 100%)',
-          icon: 'fas fa-store',
-          category: 'full-stack',
-          status: 'completed'
-        }
-      ]
+      description: 'End-to-end applications with modern frontend and robust backend architecture',
+      color: 'linear-gradient(135deg, #ff5722, #ff9800)',
+      projects: []
     },
     {
       name: 'Machine Learning',
       icon: 'fas fa-brain',
-      projects: [
-        {
-          title: 'Movie Recommendation System',
-          description: 'AI-powered recommendation engine using machine learning algorithms and data visualization techniques.',
-          technologies: ['Python', '.NET 8', 'Azure Services', 'Scikit-learn', 'Pandas', 'Matplotlib'],
-          achievements: [
-            'Implemented Random Forest and K-means clustering algorithms',
-            'Enhanced prediction accuracy through model tuning',
-            'Achieved 85% prediction accuracy for user preferences'
-          ],
-          color: 'linear-gradient(135deg, #673ab7 0%, #9c27b0 100%)',
-          icon: 'fas fa-film',
-          category: 'machine-learning',
-          status: 'completed'
-        },
-        {
-          title: 'AI Analytics Platform',
-          description: 'Machine learning platform for processing large datasets and generating business insights.',
-          technologies: ['Python', 'TensorFlow', 'Pandas', 'Azure ML', 'SQL Server', 'Power BI'],
-          achievements: [
-            'Developed ML models with 90% accuracy',
-            'Processed datasets with millions of records',
-            'Reduced manual analysis time by 70%'
-          ],
-          color: 'linear-gradient(135deg, #4caf50 0%, #8bc34a 100%)',
-          icon: 'fas fa-brain',
-          category: 'machine-learning',
-          status: 'completed'
-        }
-      ]
+      description: 'AI-powered solutions using advanced algorithms and data science techniques',
+      color: 'linear-gradient(135deg, #673ab7, #9c27b0)',
+      projects: []
     },
     {
       name: 'Data Visualization',
       icon: 'fas fa-chart-bar',
-      projects: [
-        {
-          title: 'Data Visualization Dashboard',
-          description: 'Advanced data visualization project for large-scale graphs with optimized performance.',
-          technologies: ['JavaScript', 'TypeScript', 'D3.js', 'HTML5', 'CSS3', 'Chart.js'],
-          achievements: [
-            'Designed advanced data visualization techniques',
-            'Reduced time complexity for large datasets',
-            'Built reusable visualization components'
-          ],
-          color: 'linear-gradient(135deg, #2196f3 0%, #21cbf3 100%)',
-          icon: 'fas fa-chart-line',
-          category: 'data-viz',
-          status: 'completed'
-        },
-        {
-          title: 'Interactive Sales Dashboard',
-          description: 'Dynamic dashboard transforming complex sales data into actionable insights.',
-          technologies: ['React', 'D3.js', 'TypeScript', 'Node.js', 'MongoDB', 'WebSocket'],
-          achievements: [
-            'Built real-time dashboard with live updates',
-            'Implemented complex interactive charts',
-            'Improved decision-making speed by 50%'
-          ],
-          color: 'linear-gradient(135deg, #ff9800 0%, #ffc107 100%)',
-          icon: 'fas fa-chart-bar',
-          category: 'data-viz',
-          status: 'completed'
-        }
-      ]
+      description: 'Interactive dashboards and data presentation tools',
+      color: 'linear-gradient(135deg, #2196f3, #21cbf3)',
+      projects: []
+    },
+    {
+      name: 'Web Applications',
+      icon: 'fas fa-globe',
+      description: 'Modern web applications and cloud-native solutions',
+      color: 'linear-gradient(135deg, #4caf50, #8bc34a)',
+      projects: []
     }
   ];
   
   ngAfterViewInit(): void {
-    // Initialize scroll indicators or any other setup
+    // Distribute projects into categories
+    this.distributeProjects();
   }
   
   setActiveTab(index: number): void {
     this.activeTab = index;
-    
-    // Add stagger animation to project cards
-    setTimeout(() => {
-      const cards = document.querySelectorAll('.tab-panel.active .project-card');
-      cards.forEach((card, i) => {
-        const htmlCard = card as HTMLElement;
-        htmlCard.style.animationDelay = `${i * 0.1}s`;
-        card.classList.remove('animate-in');
-        void htmlCard.offsetWidth; // Force reflow
-        card.classList.add('animate-in');
-      });
-    }, 50);
   }
   
-  scrollProjects(direction: 'left' | 'right'): void {
-    const projectsRow = document.querySelector('.tab-panel.active .projects-row') as HTMLElement;
-    if (projectsRow) {
-      const scrollAmount = 350; // Width of one project card
-      const currentScroll = projectsRow.scrollLeft;
-      const targetScroll = direction === 'left' 
-        ? currentScroll - scrollAmount 
-        : currentScroll + scrollAmount;
-      
-      projectsRow.scrollTo({
-        left: targetScroll,
-        behavior: 'smooth'
-      });
-    }
+  getFeaturedProjects(): Project[] {
+    return this.projectCategories[0].projects.filter(project => project.priority === 'featured');
   }
   
-  viewProject(project: Project): void {
-    const modal = `
+  getStatusClass(status: string): string {
+    const statusClasses = {
+      'completed': 'tag-primary',
+      'in-progress': 'tag-accent',
+      'maintenance': 'tag-secondary'
+    };
+    return statusClasses[status as keyof typeof statusClasses] || 'tag-secondary';
+  }
+  
+  getStatusLabel(status: string): string {
+    const statusLabels = {
+      'completed': 'Completed',
+      'in-progress': 'In Progress',
+      'maintenance': 'Maintenance'
+    };
+    return statusLabels[status as keyof typeof statusLabels] || status;
+  }
+  
+  viewProjectDetails(project: Project): void {
+    // Create detailed project modal/popup
+    const details = `
 🚀 ${project.title}
 
+📅 Timeline: ${project.timeline}
+
 📝 Description:
-${project.description}
+${project.fullDescription}
 
 ✨ Key Achievements:
 ${project.achievements.map(achievement => `• ${achievement}`).join('\n')}
 
 🛠️ Technologies:
-${project.technologies.join(', ')}
+${project.technologies.join(' • ')}
 
-📊 Status: ${project.status === 'completed' ? 'Completed ✅' : 'In Progress 🔄'}
+📊 Status: ${this.getStatusLabel(project.status)}
 
-🔗 Links coming soon!
+${project.metrics ? `📈 Metrics:
+${project.metrics.performance ? `• Performance: ${project.metrics.performance}` : ''}
+${project.metrics.users ? `• Users: ${project.metrics.users}` : ''}
+${project.metrics.duration ? `• Duration: ${project.metrics.duration}` : ''}` : ''}
+
+🔗 Links:
+${project.githubUrl ? `• GitHub: ${project.githubUrl}` : ''}
+${project.liveUrl ? `• Live Demo: ${project.liveUrl}` : ''}
+${project.demoUrl ? `• Demo: ${project.demoUrl}` : ''}
     `;
     
-    alert(modal);
+    alert(details);
+  }
+  
+  private distributeProjects(): void {
+    const allProjects = this.projectCategories[0].projects;
+    
+    // Distribute projects to appropriate categories
+    this.projectCategories.forEach(category => {
+      if (category.name !== 'All Projects') {
+        category.projects = allProjects.filter(project => {
+          switch (category.name) {
+            case 'Full Stack':
+              return project.category === 'full-stack';
+            case 'Machine Learning':
+              return project.category === 'machine-learning';
+            case 'Data Visualization':
+              return project.category === 'data-viz';
+            case 'Web Applications':
+              return project.category === 'web-app';
+            default:
+              return false;
+          }
+        });
+      }
+    });
   }
 }
